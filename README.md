@@ -1,40 +1,40 @@
-# Система заказов
+# Orders Management System
 
-Простая система для управления заказами и товарами.
+Тестовое задание для позиции Middle Backend разработчика.
 
-## Описание
+## Что это
 
-Система включает:
-- Управление товарами и категориями
-- Создание заказов
-- REST API для работы с данными
+Простая система для управления заказами с REST API. Позволяет добавлять товары в заказы, управлять категориями и клиентами.
 
-## Технологии
+## Что реализовано
 
-- FastAPI
-- PostgreSQL
-- SQLAlchemy
-- Redis
-- Docker
+- Схема БД с иерархией категорий (PostgreSQL)
+- 3 SQL запроса по заданию
+- REST API для добавления товаров в заказы
+- Базовое кэширование и мониторинг
+- Docker для запуска
 
-## Запуск
+## Как запустить
 
 ```bash
-# Запуск системы
-./scripts/start.sh
+# Поднять все сервисы
+docker-compose up -d
 
-# Остановка
-./scripts/stop.sh
+# Остановить
+docker-compose down
 ```
 
-## API
+## Что где смотреть
 
-- http://localhost:8000 - API
-- http://localhost:8000/docs - документация
+- http://localhost:8000/docs - документация API
 - http://localhost:8080 - pgAdmin (admin@orders.com/admin)
+- `sql_queries.sql` - SQL запросы из задания
+- `database_schema.sql` - схема БД
 
-## Тестирование
+## Тесты
 
 ```bash
-./scripts/test.sh
+python3 -m pytest test_api.py -v
 ```
+
+14 тестов покрывают основную функциональность.
