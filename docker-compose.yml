@@ -1,0 +1,86 @@
+version: '3.8'
+
+services:
+  # База данных PostgreSQL
+  postgres:
+    image: postgres:15-alpine
+    container_name: orders_postgres
+    environment:
+      POSTGRES_DB: orders_system
+      POSTGRES_USER: orders_user
+      POSTGRES_PASSWORD: orders_password
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --lc-collate=C --lc-ctype=C"
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database_schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+    networks:
+      - orders_network
+    restart: unless-stopped
+
+  # Redis для кэширования
+  redis:
+    image: redis:7-alpine
+    container_name: orders_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - orders_network
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+
+  # FastAPI приложение
+  api:
+    build: .
+    container_name: orders_api
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: orders_user
+      DB_PASSWORD: orders_password
+      DB_NAME: orders_system
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      APP_HOST: 0.0.0.0
+      APP_PORT: 8000
+      DEBUG: "False"
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - orders_network
+    restart: unless-stopped
+    volumes:
+      - ./logs:/app/logs
+
+  # pgAdmin для управления базой данных
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: orders_pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@orders.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "8080:80"
+    depends_on:
+      - postgres
+    networks:
+      - orders_network
+    restart: unless-stopped
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+
+volumes:
+  postgres_data:
+  redis_data:
+  pgadmin_data:
+
+networks:
+  orders_network:
+    driver: bridge
