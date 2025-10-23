@@ -27,3 +27,5 @@ docker-compose up -d
 ```bash
 python3 -m pytest test_api.py -v
 ```
+
+P.S. Это было тестовое задание в AitiGuru на Middle позицию, после данной реализации пригласили на собеседование.
